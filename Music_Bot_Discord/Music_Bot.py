@@ -9,7 +9,7 @@ voice = None
 show_finish = True
 
 queue = []
-currect_song = 0
+current_song = 0
 loop = True
 auto_skip = True
 
@@ -112,12 +112,12 @@ async def help(context, *argument):
             await context.channel.send(embed = help_embed)
 
 def finish_music(context):
-    global voice, voice_volume, show_finish, currect_song, queue, loop, auto_skip
+    global voice, voice_volume, show_finish, current_song, queue, loop, auto_skip
 
     if show_finish:
         if auto_skip:
-            if currect_song == len(queue) - 1:
-                currect_song = 0
+            if current_song == len(queue) - 1:
+                current_song = 0
 
                 if loop:
                     task = asyncio.run_coroutine_threadsafe(context.channel.send("I just finished the queue, now looping the queue again...!"), bot.loop)
@@ -125,28 +125,28 @@ def finish_music(context):
                     while not task.done():
                         pass
 
-                    voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[currect_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
+                    voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[current_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
                     voice.source.volume = voice_volume
 
-                    title = queue[currect_song]["title"]
-                    duration = queue[currect_song]["duration"]
-                    asyncio.run_coroutine_threadsafe(context.channel.send(f"Now playing **#{currect_song + 1} | {title}** ({format_time(duration)})!"), bot.loop)
+                    title = queue[current_song]["title"]
+                    duration = queue[current_song]["duration"]
+                    asyncio.run_coroutine_threadsafe(context.channel.send(f"Now playing **#{current_song + 1} | {title}** ({format_time(duration)})!"), bot.loop)
                 else:
                     asyncio.run_coroutine_threadsafe(context.channel.send("I just finished the queue!"), bot.loop)
             else:
-                currect_song += 1
+                current_song += 1
 
                 task = asyncio.run_coroutine_threadsafe(context.channel.send("I just finished the song, starting next one...!"), bot.loop)
 
                 while not task.done():
                     pass
 
-                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[currect_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
+                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[current_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
                 voice.source.volume = voice_volume
 
-                title = queue[currect_song]["title"]
-                duration = queue[currect_song]["duration"]
-                asyncio.run_coroutine_threadsafe(context.channel.send(f"Now playing **#{currect_song + 1} | {title}** ({format_time(duration)})!"), bot.loop)
+                title = queue[current_song]["title"]
+                duration = queue[current_song]["duration"]
+                asyncio.run_coroutine_threadsafe(context.channel.send(f"Now playing **#{current_song + 1} | {title}** ({format_time(duration)})!"), bot.loop)
         else:
             asyncio.run_coroutine_threadsafe(context.channel.send("I just finished the song!"), bot.loop)
     else:
@@ -174,7 +174,7 @@ async def join(context):
 
             await context.reply("I just connected to your voice channel!")
         else:
-            await context.reply("I'm currect in another voice channel, you must disconnect first!")
+            await context.reply("I'm current in another voice channel, you must disconnect first!")
     else:
         await context.reply(f"{context.author.mention} must connect to a voice channel first!")
 
@@ -194,7 +194,7 @@ async def disconnect(context):
 
 @bot.command()
 async def add(context, *argument):
-    global queue, currect_song
+    global queue, current_song
 
     user_input = list(argument)
 
@@ -236,8 +236,8 @@ async def add(context, *argument):
         else:
             queue.insert(song_pos - 1, info)
 
-            if song_pos <= currect_song + 1 and len(queue) != 1:
-                currect_song += 1
+            if song_pos <= current_song + 1 and len(queue) != 1:
+                current_song += 1
 
             title = info["title"]
             duration = info["duration"]
@@ -247,7 +247,7 @@ async def add(context, *argument):
 
 @bot.command()
 async def remove(context, *argument):
-    global currect_song, queue
+    global current_song, queue
 
     if len(list(argument)) == 1:
         try:
@@ -260,20 +260,20 @@ async def remove(context, *argument):
         if argument[0] < 1 or argument[0] > len(queue):
             await context.reply("Invaid song!")
         else:
-            if argument[0] == currect_song + 1:
+            if argument[0] == current_song + 1:
                 await context.reply("Cannot remove in-play song!")
-            elif argument[0] > currect_song + 1:
+            elif argument[0] > current_song + 1:
                 remove_title = queue[argument[0] - 1]["title"]
                 remove_duration = queue[argument[0] - 1]["duration"]
 
                 queue.pop(argument[0] - 1)
 
                 await context.reply(f"Song **#{argument[0]} | {remove_title}** ({format_time(remove_duration)}) removed!")
-            elif argument[0] < currect_song + 1:
+            elif argument[0] < current_song + 1:
                 remove_title = queue[argument[0] - 1]["title"]
                 remove_duration = queue[argument[0] - 1]["duration"]
 
-                currect_song -= 1
+                current_song -= 1
                 queue.pop(argument[0] - 1)
 
                 await context.reply(f"Song **#{argument[0]} | {remove_title}** ({format_time(remove_duration)}) removed!")
@@ -282,11 +282,11 @@ async def remove(context, *argument):
 
 @bot.command()
 async def clear(context):
-    global show_finish, currect_song, queue
+    global show_finish, current_song, queue
 
     if voice == None:
         queue = []
-        currect_song = 0
+        current_song = 0
 
         await context.reply("Queue cleared!")
     else:
@@ -296,7 +296,7 @@ async def clear(context):
             voice.stop()
 
         queue = []
-        currect_song = 0
+        current_song = 0
 
         await context.reply("Queue cleared!")
 
@@ -305,25 +305,25 @@ async def show(context):
     global queue
 
     if len(queue) == 0:
-        await context.reply("There're currectly no song in queue!")
+        await context.reply("There're currently no song in queue!")
     else:
         queue_name = []
-        currect = queue[currect_song]
+        current = queue[current_song]
 
         for info in queue:
             title = info["title"]
             duration = info["duration"]
 
-            if currect != info:
+            if current != info:
                 queue_name.append(f"**#{queue.index(info) + 1} | {title}** ({format_time(duration)})")
             else:
                 queue_name.append(f"**#{queue.index(info) + 1} | {title}** ({format_time(duration)})  <-- You're here")
 
-        await context.reply("Currect music queue:\n" + "\n".join(queue_name))
+        await context.reply("current music queue:\n" + "\n".join(queue_name))
 
 @bot.command()
 async def play(context, *argument):
-    global voice, voice_volume, show_finish, queue, currect_song
+    global voice, voice_volume, show_finish, queue, current_song
 
     if voice == None:
         await context.reply("I haven't connected to a voice channel yet!")
@@ -345,14 +345,14 @@ async def play(context, *argument):
                 if argument[0] < 1 or argument[0] > len(queue):
                     await context.reply("Invaid song!")
                 else:
-                    currect_song = argument[0] - 1
+                    current_song = argument[0] - 1
 
-                    voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[currect_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
+                    voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[current_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
                     voice.source.volume = voice_volume
 
-                    title = queue[currect_song]["title"]
-                    duration = queue[currect_song]["duration"]
-                    await context.reply(f"Now playing **#{currect_song + 1} | {title}** ({format_time(duration)})!")
+                    title = queue[current_song]["title"]
+                    duration = queue[current_song]["duration"]
+                    await context.reply(f"Now playing **#{current_song + 1} | {title}** ({format_time(duration)})!")
             else:
                 await context.reply(f"{context.author.mention} haven't added any song!")
         elif len(list(argument)) == 0:
@@ -362,12 +362,12 @@ async def play(context, *argument):
 
                     voice.stop()
 
-                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[currect_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
+                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[current_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
                 voice.source.volume = voice_volume
 
-                title = queue[currect_song]["title"]
-                duration = queue[currect_song]["duration"]
-                await context.reply(f"Now playing **#{currect_song + 1} | {title}** ({format_time(duration)})!")
+                title = queue[current_song]["title"]
+                duration = queue[current_song]["duration"]
+                await context.reply(f"Now playing **#{current_song + 1} | {title}** ({format_time(duration)})!")
             else:
                 await context.reply(f"{context.author.mention} haven't added any song!")
         else:
@@ -421,7 +421,7 @@ async def resume(context):
 
 @bot.command()
 async def next(context, *argument):
-    global voice, voice_volume, show_finish, currect_song, queue
+    global voice, voice_volume, show_finish, current_song, queue
 
     if len(list(argument)) == 1:
         try:
@@ -433,19 +433,19 @@ async def next(context, *argument):
 
         if argument[0] <= 0:
             await context.reply("Please input a correct integer!")
-        elif currect_song + argument[0] >= len(queue) - 1:
+        elif current_song + argument[0] >= len(queue) - 1:
             if voice.is_playing():
                 show_finish = False
                 voice.stop()
 
-                currect_song = len(queue) - 1
+                current_song = len(queue) - 1
 
-                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[currect_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
+                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[current_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
                 voice.source.volume = voice_volume
 
-                title = queue[currect_song]["title"]
-                duration = queue[currect_song]["duration"]
-                await context.reply(f"Now playing **#{currect_song + 1} | {title}** ({format_time(duration)})!")
+                title = queue[current_song]["title"]
+                duration = queue[current_song]["duration"]
+                await context.reply(f"Now playing **#{current_song + 1} | {title}** ({format_time(duration)})!")
             else:
                 await context.reply(f"{context.author_metion} must be playing music in order to change song!")
     else:
@@ -454,15 +454,15 @@ async def next(context, *argument):
                 show_finish = False
                 voice.stop()
 
-                if currect_song < len(queue) - 1:
-                    currect_song += 1
+                if current_song < len(queue) - 1:
+                    current_song += 1
 
-                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[currect_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
+                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[current_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
                 voice.source.volume = voice_volume
 
-                title = queue[currect_song]["title"]
-                duration = queue[currect_song]["duration"]
-                await context.reply(f"Now playing **#{currect_song + 1} | {title}** ({format_time(duration)})!")
+                title = queue[current_song]["title"]
+                duration = queue[current_song]["duration"]
+                await context.reply(f"Now playing **#{current_song + 1} | {title}** ({format_time(duration)})!")
             else:
                 await context.reply(f"{context.author_metion} must be playing music in order to change song!")
         else:
@@ -470,7 +470,7 @@ async def next(context, *argument):
 
 @bot.command()
 async def previous(context, *argument):
-    global voice, voice_volume, show_finish, currect_song, queue
+    global voice, voice_volume, show_finish, current_song, queue
 
     if len(list(argument)) == 1:
         try:
@@ -482,19 +482,19 @@ async def previous(context, *argument):
 
         if argument[0] <= 0:
             await context.reply("Please input a correct integer!")
-        elif currect_song - argument[0] <= 0:
+        elif current_song - argument[0] <= 0:
             if voice.is_playing():
                 show_finish = False
                 voice.stop()
                 
-                currect_song = 0
+                current_song = 0
 
-                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[currect_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
+                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[current_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
                 voice.source.volume = voice_volume
 
-                title = queue[currect_song]["title"]
-                duration = queue[currect_song]["duration"]
-                await context.reply(f"Now playing **#{currect_song + 1} | {title}** ({format_time(duration)})!")
+                title = queue[current_song]["title"]
+                duration = queue[current_song]["duration"]
+                await context.reply(f"Now playing **#{current_song + 1} | {title}** ({format_time(duration)})!")
             else:
                 await context.reply(f"{context.author_metion} must be playing music in order to change song!")
     else:
@@ -503,15 +503,15 @@ async def previous(context, *argument):
                 show_finish = False
                 voice.stop()
                 
-                if currect_song > 0:
-                    currect_song -= 1
+                if current_song > 0:
+                    current_song -= 1
 
-                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[currect_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
+                voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[current_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = lambda placeholder: finish_music(context))
                 voice.source.volume = voice_volume
 
-                title = queue[currect_song]["title"]
-                duration = queue[currect_song]["duration"]
-                await context.reply(f"Now playing **#{currect_song + 1} | {title}** ({format_time(duration)})!")
+                title = queue[current_song]["title"]
+                duration = queue[current_song]["duration"]
+                await context.reply(f"Now playing **#{current_song + 1} | {title}** ({format_time(duration)})!")
             else:
                 await context.reply(f"{context.author_metion} must be playing music in order to change song!")
         else:
