@@ -1,4 +1,4 @@
-This project allows anyone to host their own music bot on discord.
+Have you ever wanted to host a music discord bot? If yes then this project is for you. You can easily host your own music discord bot with many features in just 3 steps.
 
 # **Dependencies:**
 
@@ -39,6 +39,4 @@ This project is distributed under [MIT license](https://github.com/YoutuberTom/M
 - Replace **\<Path to ffmpeg>** with the path to ffmpeg.
 - Replace **\<Bot's token>** with the bot's token that you've saved.
 
-## Step 4: Enjoy.
-
-- Now you can start using your self-hosted bot.
+And you just finished creating your music discord bot. Now you can start using your self-hosted bot by running [this](https://github.com/YoutuberTom/Music_Bot_On_Discord/blob/main/Music_Bot/Music_Bot.py).
