@@ -36,7 +36,7 @@ This project is distributed under [MIT license](https://github.com/YoutuberTom/M
 ## Step 3: Modify config.
 
 - Open the [config.ini](https://github.com/YoutuberTom/Music_Bot_On_Discord/blob/main/Music_Bot/config.ini) and change the config data.
-- Replace **\<ffmpeg>**  with the path to ffmpeg (optional).
-- Replace **\<Bot's token>** with the bot's token that you've saved.
+- Replace **"ffmpeg"**  with the path to ffmpeg (optional).
+- Replace **"\<Bot's token>"** with the bot's token that you've saved.
 
 And you just finished creating your music discord bot. Now you can start using your self-hosted bot by running [this](https://github.com/YoutuberTom/Music_Bot_On_Discord/blob/main/Music_Bot/Music_Bot.py).
