@@ -1,4 +1,4 @@
-import discord, yt_dlp, logging, asyncio, nacl, configparser, datetime, os, sys
+import discord, yt_dlp, logging, asyncio, nacl, configparser, os, sys
 from discord.ext import commands
 
 intents = discord.Intents.default()
@@ -146,14 +146,17 @@ def finish(message):
         show_finish = True
 
 def format_time(time_in_second):
-    formated_time = datetime.timedelta(seconds = time_in_second)
-
     if time_in_second >= 3600:
-        formated_time = f"{formated_time.days * 24 + formated_time.seconds // 3600}:{(formated_time.seconds % 3600) // 60:02}:{formated_time.seconds % 60:02}"
-    else:
-        formated_time = f"{(formated_time.seconds % 3600) // 60}:{formated_time.seconds % 60:02}"
+        hours = time_in_second // 3600
+        minutes = time_in_second - hours * 3600
+        seconds = time_in_second - minutes * 60 - hours * 3600
 
-    return formated_time
+        return f"{hours}:{minutes:02d}:{seconds:02d}"
+    else:
+        minutes = time_in_second // 60
+        seconds = time_in_second - minutes * 60
+
+        return f"{minutes}:{seconds:02d}"
 
 @bot.command()
 async def join(message):
