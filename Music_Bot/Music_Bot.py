@@ -148,7 +148,7 @@ def finish(message):
 def format_time(time_in_second):
     if time_in_second >= 3600:
         hours = time_in_second // 3600
-        minutes = time_in_second - hours * 3600
+        minutes = (time_in_second - hours * 3600) // 60
         seconds = time_in_second - minutes * 60 - hours * 3600
 
         return f"{hours}:{minutes:02d}:{seconds:02d}"
