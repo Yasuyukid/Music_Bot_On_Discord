@@ -20,7 +20,7 @@ Have you ever wanted to host a music discord bot? If the answer is yes then this
 ## Step 1: Create a bot.
 
 - You can [click here](https://discord.com/developers/applications) to create a new bot.
-- You'll need to change the bot's scopes and permissions for it to work.
+- You'll need to change the bot scopes and bot permissions for it to work.
 - Finally, create a new token then save it in a safe place as you will only see it once.
 
 ## Step 2: Install requirements.
