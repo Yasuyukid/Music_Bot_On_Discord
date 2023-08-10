@@ -157,9 +157,12 @@ def finish(error: Callable[[Optional[Exception]], Any]) -> None:
         pass
 
     voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[current_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = finish)
-    asyncio.run_coroutine_threadsafe(play_message.channel.send(f"Now playing **#{current_song + 1} | {queue[current_song]['title']}** ({format_time(queue[current_song]['duration'])})."), bot.loop)
+    asyncio.run_coroutine_threadsafe(play_message.channel.send(f"Now playing **#{current_song + 1} | {queue[current_song]['title']}** ({format_time(queue[current_song].get('duration', 'unknown duration'))})."), bot.loop)
 
 def format_time(time_in_second: int) -> None:
+    if type(time_in_second) != int:
+        return time_in_second
+
     if time_in_second >= 3600:
         hours = time_in_second // 3600
         minutes = (time_in_second - hours * 3600) // 60
@@ -244,7 +247,7 @@ async def add(message: discord.Message, *args) -> None:
     else:
         queue.extend(infos)
 
-    await message.reply(f"Song{'s' if len(infos) >= 2 else ''} added:\n" + "\n".join([f"Song **#{add_index + index} | {info['title']}** ({format_time(info['duration'])}) added." for index, info in enumerate(infos)]))
+    await message.reply(f"Song{'s' if len(infos) >= 2 else ''} added:\n" + "\n".join([f"Song **#{add_index + index} | {info['title']}** ({format_time(info.get('duration', 'unknown duration'))}) added." for index, info in enumerate(infos)]))
 
 @bot.command()
 async def remove(message: discord.Message, *args) -> None:
@@ -278,9 +281,9 @@ async def remove(message: discord.Message, *args) -> None:
             break
         else:
             title = queue[arg - 1]["title"]
-            duration = queue[arg - 1]["duration"]
+            duration = queue[arg - 1].get("duration", "unknown duration")
 
-            if arg <= current_song + 1:
+            if arg <= current_song + 1 and current_song != 0:
                 current_song -= 1
             queue.pop(arg - 1)
             removed_song_positions.append(arg + index_offset)
@@ -307,7 +310,7 @@ async def clear(message: discord.Message) -> None:
 
 @bot.command()
 async def show(message: discord.Message) -> None:
-    await message.reply("There are no songs in the queue." if len(queue) == 0 else "Song queue:\n" + "\n".join([f"**#{index + 1} | {info['title']}** ({format_time(info['duration'])}){'  <-- Current song.' if index == current_song else '.'}" for index, info in enumerate(queue)]))
+    await message.reply("There are no songs in the queue." if len(queue) == 0 else "Song queue:\n" + "\n".join([f"**#{index + 1} | {info['title']}** ({format_time(info.get('duration', 'unknown duration'))}){'  <-- Current song.' if index == current_song else '.'}" for index, info in enumerate(queue)]))
 
 @bot.command()
 async def play(message: discord.Message, *args) -> None:
@@ -347,7 +350,7 @@ async def play(message: discord.Message, *args) -> None:
     play_message = message
 
     voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[current_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = finish)
-    await message.reply(f"Now playing **#{current_song + 1} | {queue[current_song]['title']}** ({format_time(queue[current_song]['duration'])}).")
+    await message.reply(f"Now playing **#{current_song + 1} | {queue[current_song]['title']}** ({format_time(queue[current_song].get('duration', 'unknown duration'))}).")
 
 @bot.command()
 async def stop(message: discord.Message) -> None:
@@ -433,7 +436,7 @@ async def next(message: discord.Message, *args) -> None:
     play_message = message
 
     voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[current_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = finish)
-    await message.reply(f"Now playing **#{current_song + 1} | {queue[current_song]['title']}** ({format_time(queue[current_song]['duration'])}).")
+    await message.reply(f"Now playing **#{current_song + 1} | {queue[current_song]['title']}** ({format_time(queue[current_song].get('duration', 'unknown duration'))}).")
 
 @bot.command()
 async def previous(message: discord.Message, *args) -> None:
@@ -471,7 +474,7 @@ async def previous(message: discord.Message, *args) -> None:
     play_message = message
 
     voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(queue[current_song]["url"], **ffmpeg_options, executable = ffmpeg_path), voice_volume), after = finish)
-    await message.reply(f"Now playing **#{current_song + 1} | {queue[current_song]['title']}** ({format_time(queue[current_song]['duration'])}).")
+    await message.reply(f"Now playing **#{current_song + 1} | {queue[current_song]['title']}** ({format_time(queue[current_song].get('duration', 'unknown duration'))}).")
 
 @bot.command()
 async def volume(message: discord.Message, *args) -> None:
